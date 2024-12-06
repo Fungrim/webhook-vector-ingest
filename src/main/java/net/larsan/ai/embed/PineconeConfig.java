@@ -12,7 +12,6 @@ public interface PineconeConfig {
 
     Optional<String> apiKey();
 
-    @WithDefault("")
     Optional<String> index();
 
     @WithDefault("true")

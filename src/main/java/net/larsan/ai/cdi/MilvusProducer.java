@@ -22,7 +22,7 @@ public class MilvusProducer {
         if (Strings.isNullOrEmpty(conf.uri().orElse(null))) {
             throw new IllegalStateException("Milvus uri is empty");
         }
-        if (Strings.isNullOrEmpty(conf.dbName().orElse(null))) {
+        if (Strings.isNullOrEmpty(conf.database().orElse(null))) {
             throw new IllegalStateException("Milvus db name is empty");
         }
         return new Milvus(conf, gson);

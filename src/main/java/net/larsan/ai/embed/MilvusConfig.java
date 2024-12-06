@@ -20,7 +20,9 @@ public interface MilvusConfig {
     @WithDefault("true")
     boolean secure();
 
-    Optional<String> dbName();
+    Optional<String> database();
+
+    Optional<String> collection();
 
     @WithDefault("vector")
     String vectorFieldName();
@@ -28,6 +30,6 @@ public interface MilvusConfig {
     public default boolean isLegal() {
         return !Strings.isNullOrEmpty(accessToken().orElse(null))
                 && !Strings.isNullOrEmpty(uri().orElse(null))
-                && !Strings.isNullOrEmpty(dbName().orElse(null));
+                && !Strings.isNullOrEmpty(database().orElse(null));
     }
 }

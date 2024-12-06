@@ -23,7 +23,7 @@ public class Milvus implements Database {
                 .uri(conf.uri().get())
                 .token(conf.accessToken().get())
                 .secure(conf.secure())
-                .dbName(conf.dbName().get())
+                .dbName(conf.database().get())
                 .build();
         client = new MilvusClientV2(connectConfig);
     }
@@ -37,6 +37,8 @@ public class Milvus implements Database {
         o.add(conf.vectorFieldName(), gson.toJsonTree(req.values()));
         o.addProperty("id", req.id());
         client.upsert(UpsertReq.builder()
+                .collectionName(conf.collection().get())
+                .partitionName(req.namespace())
                 .data(Collections.singletonList(o))
                 .build());
     }

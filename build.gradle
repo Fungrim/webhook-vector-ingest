@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'io.quarkus:quarkus-container-image-docker'
     implementation 'io.quarkiverse.langchain4j:quarkus-langchain4j-core:0.22.0'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
     implementation 'io.quarkus:quarkus-hibernate-validator'
@@ -25,6 +26,7 @@ dependencies {
     implementation 'io.milvus:milvus-sdk-java:2.5.0'
     implementation 'io.pinecone:pinecone-client:3.1.0'
     implementation 'dev.langchain4j:langchain4j-ollama:0.36.2'
+    implementation 'io.github.ollama4j:ollama4j:1.0.78'
  
 
     // TEST
