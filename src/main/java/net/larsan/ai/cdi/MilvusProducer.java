@@ -16,14 +16,17 @@ public class MilvusProducer {
         if (!conf.enabled()) {
             throw new IllegalStateException("Milvus not enabled");
         }
-        if (Strings.isNullOrEmpty(conf.accessToken().orElse(null))) {
+        if (Strings.isNullOrEmpty(conf.token().orElse(null))) {
             throw new IllegalStateException("Milvus access token is empty");
         }
         if (Strings.isNullOrEmpty(conf.uri().orElse(null))) {
             throw new IllegalStateException("Milvus uri is empty");
         }
         if (Strings.isNullOrEmpty(conf.database().orElse(null))) {
-            throw new IllegalStateException("Milvus db name is empty");
+            throw new IllegalStateException("Milvus database name is empty");
+        }
+        if (Strings.isNullOrEmpty(conf.collection().orElse(null))) {
+            throw new IllegalStateException("Milvus collection name is empty");
         }
         return new Milvus(conf, gson);
     }

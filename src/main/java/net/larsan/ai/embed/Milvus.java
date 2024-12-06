@@ -2,12 +2,15 @@ package net.larsan.ai.embed;
 
 import java.util.Collections;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import io.milvus.v2.client.ConnectConfig;
 import io.milvus.v2.client.MilvusClientV2;
+import io.milvus.v2.service.utility.request.FlushReq;
 import io.milvus.v2.service.vector.request.UpsertReq;
+import io.milvus.v2.service.vector.request.UpsertReq.UpsertReqBuilder;
 
 public class Milvus implements Database {
 
@@ -21,7 +24,7 @@ public class Milvus implements Database {
         this.gson = gson;
         connectConfig = ConnectConfig.builder()
                 .uri(conf.uri().get())
-                .token(conf.accessToken().get())
+                .token(conf.token().get())
                 .secure(conf.secure())
                 .dbName(conf.database().get())
                 .build();
@@ -29,17 +32,29 @@ public class Milvus implements Database {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void upsert(Upsert req) {
         JsonObject o = new JsonObject();
-        req.metadata().forEach(f -> {
-            f.setAsGsonProperty(o);
-        });
+        if (conf.jsonMetadata()) {
+            JsonObject meta = new JsonObject();
+            req.metadata().forEach(f -> {
+                f.setAsGsonProperty(meta);
+            });
+            o.add(conf.jsonMetadataFieldName(), meta);
+        } else {
+            req.metadata().forEach(f -> {
+                f.setAsGsonProperty(o);
+            });
+        }
         o.add(conf.vectorFieldName(), gson.toJsonTree(req.values()));
         o.addProperty("id", req.id());
-        client.upsert(UpsertReq.builder()
+        UpsertReqBuilder builder = UpsertReq.builder()
                 .collectionName(conf.collection().get())
-                .partitionName(req.namespace())
-                .data(Collections.singletonList(o))
-                .build());
+                .data(Collections.singletonList(o));
+        if (!Strings.isNullOrEmpty(req.namespace())) {
+            builder.partitionName(req.namespace());
+        }
+        client.upsert(builder.build());
+        client.flush(FlushReq.builder().collectionNames(Collections.singletonList(conf.collection().get())).build());
     }
 }

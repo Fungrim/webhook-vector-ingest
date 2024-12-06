@@ -40,4 +40,4 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 
-run.sh
+*.sh

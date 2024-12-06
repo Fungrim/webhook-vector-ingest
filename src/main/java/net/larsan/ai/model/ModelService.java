@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import io.github.amithkoujalgi.ollama4j.core.OllamaAPI;
 import io.github.amithkoujalgi.ollama4j.core.exceptions.OllamaBaseException;
 import jakarta.inject.Inject;
@@ -32,6 +33,12 @@ public class ModelService {
     }
 
     public EmbeddingModel getEmbedder(Model model) {
-        return null;
+        if ("ollama".equals(model.provider()) && ollamaConf.isLegal()) {
+            return OllamaEmbeddingModel.builder()
+                    .baseUrl(ollamaConf.uri().get())
+                    .modelName(model.name())
+                    .build();
+        }
+        throw new IllegalStateException("Embedder '" + model.name() + "' not found");
     }
 }

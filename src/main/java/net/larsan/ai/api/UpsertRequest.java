@@ -10,13 +10,13 @@ import net.larsan.ai.embed.Upsert;
 
 public record UpsertRequest(
         @NotBlank String id,
-        @NotBlank String namespace,
+        Optional<String> namespace,
         Optional<List<MetadataField>> metadata,
         @NotBlank String mimeType,
         Optional<String> encoding,
         @NotBlank String content) {
 
     public Upsert toUpsert(Embedding e) {
-        return new Upsert(id, namespace, metadata.orElse(Collections.emptyList()), e.vectorAsList());
+        return new Upsert(id, namespace.orElse(null), metadata.orElse(Collections.emptyList()), e.vectorAsList());
     }
 }

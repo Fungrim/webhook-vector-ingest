@@ -3,6 +3,8 @@ package net.larsan.ai.embed;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -22,6 +24,9 @@ public class DatabaseService {
     @Inject
     Instance<Pinecone> pinecone;
 
+    @Inject
+    Gson gson;
+
     public List<String> getDatabases() {
         List<String> l = new ArrayList<>(2);
         if (milvusConfig.isLegal()) {
@@ -34,6 +39,9 @@ public class DatabaseService {
     }
 
     public Database getDatabase(String db) {
-        return null;
+        if ("milvus".equals(db) && milvusConfig.isLegal()) {
+            return new Milvus(milvusConfig, gson);
+        }
+        throw new IllegalStateException("Database '" + db + "' not found");
     }
 }
