@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
-import net.larsan.ai.embed.Milvus;
-import net.larsan.ai.embed.MilvusConfig;
+import net.larsan.ai.milvus.Milvus;
+import net.larsan.ai.milvus.MilvusConfig;
 
 public class MilvusProducer {
 

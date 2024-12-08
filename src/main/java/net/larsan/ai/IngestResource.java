@@ -14,15 +14,15 @@ import net.larsan.ai.api.Encoding;
 import net.larsan.ai.api.MimeType;
 import net.larsan.ai.api.UpsertRequest;
 import net.larsan.ai.docs.TextDocumentParser;
-import net.larsan.ai.embed.Database;
-import net.larsan.ai.embed.DatabaseService;
-import net.larsan.ai.model.ModelService;
+import net.larsan.ai.embedding.ModelService;
+import net.larsan.ai.storage.VectorStorage;
+import net.larsan.ai.storage.VectorStorageService;
 
 @Path("/api/v1")
 public class IngestResource {
 
     @Inject
-    DatabaseService dbs;
+    VectorStorageService dbs;
 
     @Inject
     ModelService models;
@@ -31,7 +31,7 @@ public class IngestResource {
     ChunkingConfig chunkingConfig;
 
     @POST
-    @Path("/embed")
+    @Path("/upsert")
     public void upsert(UpsertRequest req) {
 
         Document d = createDocument(req);
@@ -45,13 +45,13 @@ public class IngestResource {
         List<Embedding> embeddings = embed(req.embedding().provider(), req.embedding().name(), chunks);
 
         // upsert
-        Database database = getDatabase(req.storage().provider());
+        VectorStorage database = getDatabase(req.storage().provider());
         embeddings.forEach(e -> {
             database.upsert(req.toUpsert(e, req.storage().namespace()));
         });
     }
 
-    private Database getDatabase(String db) {
+    private VectorStorage getDatabase(String db) {
         return dbs.getDatabase(db);
     }
 

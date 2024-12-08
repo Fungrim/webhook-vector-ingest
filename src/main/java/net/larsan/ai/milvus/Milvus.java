@@ -11,9 +11,9 @@ import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.utility.request.FlushReq;
 import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.service.vector.request.UpsertReq.UpsertReqBuilder;
-import net.larsan.ai.embed.Database;
+import net.larsan.ai.storage.VectorStorage;
 
-public class Milvus implements Database {
+public class Milvus implements VectorStorage {
 
     private final ConnectConfig connectConfig;
     private final MilvusClientV2 client;

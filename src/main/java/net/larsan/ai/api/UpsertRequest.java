@@ -8,7 +8,7 @@ import dev.langchain4j.data.embedding.Embedding;
 import io.smallrye.common.constraint.NotNull;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import net.larsan.ai.embed.Database.Upsert;
+import net.larsan.ai.storage.VectorStorage.Upsert;
 
 public record UpsertRequest(
         @Valid @NotNull EmbeddingModel embedding,

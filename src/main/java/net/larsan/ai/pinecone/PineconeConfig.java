@@ -1,4 +1,4 @@
-package net.larsan.ai.embed;
+package net.larsan.ai.pinecone;
 
 import java.util.Optional;
 
