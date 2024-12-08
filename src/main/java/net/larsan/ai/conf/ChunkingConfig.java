@@ -1,4 +1,4 @@
-package net.larsan.ai;
+package net.larsan.ai.conf;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;

@@ -42,7 +42,7 @@ public class VectorStorageService {
         return l;
     }
 
-    public VectorStorage getDatabase(String db) {
+    public Storagager getDatabase(String db) {
         if ("milvus".equals(db) && milvusConfig.isLegal()) {
             return new Milvus(milvusConfig, gson);
         }

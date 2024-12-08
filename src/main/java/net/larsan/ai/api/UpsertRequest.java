@@ -8,11 +8,11 @@ import dev.langchain4j.data.embedding.Embedding;
 import io.smallrye.common.constraint.NotNull;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import net.larsan.ai.storage.VectorStorage.Upsert;
+import net.larsan.ai.storage.Storagager;
 
 public record UpsertRequest(
-        @Valid @NotNull EmbeddingModel embedding,
-        @Valid @NotNull VectorStorage storage,
+        Optional<EmbeddingModel> embedding,
+        Optional<VectorStorage> storage,
         @Valid @NotNull Data data) {
 
     public static record Data(
@@ -24,7 +24,7 @@ public record UpsertRequest(
 
     }
 
-    public Upsert toUpsert(Embedding e, Optional<String> namespace) {
-        return new Upsert(data.id, namespace.orElse(null), data.metadata.orElse(Collections.emptyList()), e.vectorAsList());
+    public Storagager.Upsert toUpsert(Embedding e, Optional<String> namespace) {
+        return new Storagager.Upsert(data.id, namespace.orElse(null), data.metadata.orElse(Collections.emptyList()), e.vectorAsList());
     }
 }

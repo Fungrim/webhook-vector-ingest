@@ -14,9 +14,9 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Inference;
 import net.larsan.ai.api.MetadataField;
 import net.larsan.ai.embedding.Embedder;
-import net.larsan.ai.storage.VectorStorage;
+import net.larsan.ai.storage.Storagager;
 
-public class Pinecone implements VectorStorage, Embedder {
+public class Pinecone implements Storagager, Embedder {
 
     private final io.pinecone.clients.Pinecone client;
     private final Index index;

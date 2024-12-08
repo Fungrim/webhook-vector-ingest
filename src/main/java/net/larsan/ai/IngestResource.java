@@ -13,9 +13,15 @@ import net.larsan.ai.api.EmbeddingModel;
 import net.larsan.ai.api.Encoding;
 import net.larsan.ai.api.MimeType;
 import net.larsan.ai.api.UpsertRequest;
+import net.larsan.ai.api.VectorStorage;
+import net.larsan.ai.conf.ChunkingConfig;
+import net.larsan.ai.conf.EmbeddingConfig;
+import net.larsan.ai.conf.EmbeddingConfig.Model;
+import net.larsan.ai.conf.VectorStorageConfig;
+import net.larsan.ai.conf.VectorStorageConfig.Storage;
 import net.larsan.ai.docs.TextDocumentParser;
 import net.larsan.ai.embedding.ModelService;
-import net.larsan.ai.storage.VectorStorage;
+import net.larsan.ai.storage.Storagager;
 import net.larsan.ai.storage.VectorStorageService;
 
 @Path("/api/v1")
@@ -30,9 +36,17 @@ public class IngestResource {
     @Inject
     ChunkingConfig chunkingConfig;
 
+    @Inject
+    VectorStorageConfig storageConfig;
+
+    @Inject
+    EmbeddingConfig embeddingConfig;
+
     @POST
     @Path("/upsert")
     public void upsert(UpsertRequest req) {
+        VectorStorage storage = findStorage(req);
+        EmbeddingModel embedding = findEmbedding(req);
 
         Document d = createDocument(req);
 
@@ -42,16 +56,38 @@ public class IngestResource {
         List<TextSegment> chunks = chunk(d);
 
         // create embedding
-        List<Embedding> embeddings = embed(req.embedding(), chunks);
+        List<Embedding> embeddings = embed(embedding, chunks);
 
         // upsert
-        VectorStorage database = getDatabase(req.storage().provider());
+        Storagager database = getDatabase(storage.provider());
         embeddings.forEach(e -> {
-            database.upsert(req.toUpsert(e, req.storage().namespace()));
+            database.upsert(req.toUpsert(e, storage.namespace()));
         });
     }
 
-    private VectorStorage getDatabase(String db) {
+    private EmbeddingModel findEmbedding(UpsertRequest req) {
+        if (req.embedding().isPresent()) {
+            return req.embedding().get();
+        } else if (embeddingConfig.defaultModel().isPresent()) {
+            Model m = embeddingConfig.defaultModel().get();
+            return new EmbeddingModel(m.provider(), m.name());
+        } else {
+            throw new IllegalStateException("No default embedding configured");
+        }
+    }
+
+    private VectorStorage findStorage(UpsertRequest req) {
+        if (req.storage().isPresent()) {
+            return req.storage().get();
+        } else if (storageConfig.defaultStorage().isPresent()) {
+            Storage storage = storageConfig.defaultStorage().get();
+            return new VectorStorage(storage.provider(), storage.namespace());
+        } else {
+            throw new IllegalStateException("No default storage configured");
+        }
+    }
+
+    private Storagager getDatabase(String db) {
         return dbs.getDatabase(db);
     }
 

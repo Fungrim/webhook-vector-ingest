@@ -6,9 +6,9 @@ import dev.langchain4j.model.openai.OpenAiEmbeddingModel.OpenAiEmbeddingModelBui
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import net.larsan.ai.OllamaConfig;
-import net.larsan.ai.OpenAIConfig;
 import net.larsan.ai.api.EmbeddingModel;
+import net.larsan.ai.conf.OllamaConfig;
+import net.larsan.ai.conf.OpenAIConfig;
 import net.larsan.ai.pinecone.Pinecone;
 import net.larsan.ai.pinecone.PineconeConfig;
 
@@ -40,8 +40,8 @@ public class ModelService {
             return (m, l) -> {
                 OpenAiEmbeddingModelBuilder oai = OpenAiEmbeddingModel.builder()
                         .apiKey(openAiConf.apiKey().get());
-                if (openAiConf.url().isPresent()) {
-                    oai = oai.baseUrl(openAiConf.url().get());
+                if (openAiConf.uri().isPresent()) {
+                    oai = oai.baseUrl(openAiConf.uri().get());
                 }
                 return oai.build().embedAll(l).content();
             };
