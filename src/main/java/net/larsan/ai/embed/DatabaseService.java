@@ -42,6 +42,9 @@ public class DatabaseService {
         if ("milvus".equals(db) && milvusConfig.isLegal()) {
             return new Milvus(milvusConfig, gson);
         }
+        if ("pinecone".equals(db) && milvusConfig.isLegal()) {
+            return new Pinecone(pineconeConfig);
+        }
         throw new IllegalStateException("Database '" + db + "' not found");
     }
 }

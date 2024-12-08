@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import io.github.amithkoujalgi.ollama4j.core.OllamaAPI;
 import io.github.amithkoujalgi.ollama4j.core.exceptions.OllamaBaseException;
@@ -32,12 +31,14 @@ public class ModelService {
         return l;
     }
 
-    public EmbeddingModel getEmbedder(Model model) {
+    public Embedder getEmbedder(Model model) {
         if ("ollama".equals(model.provider()) && ollamaConf.isLegal()) {
-            return OllamaEmbeddingModel.builder()
-                    .baseUrl(ollamaConf.uri().get())
-                    .modelName(model.name())
-                    .build();
+            return (l) -> {
+                return OllamaEmbeddingModel.builder()
+                        .baseUrl(ollamaConf.uri().get())
+                        .modelName(model.name())
+                        .build().embedAll(l).content();
+            };
         }
         throw new IllegalStateException("Embedder '" + model.name() + "' not found");
     }

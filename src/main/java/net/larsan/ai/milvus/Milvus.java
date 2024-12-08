@@ -1,4 +1,4 @@
-package net.larsan.ai.embed;
+package net.larsan.ai.milvus;
 
 import java.util.Collections;
 
@@ -11,6 +11,7 @@ import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.service.utility.request.FlushReq;
 import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.service.vector.request.UpsertReq.UpsertReqBuilder;
+import net.larsan.ai.embed.Database;
 
 public class Milvus implements Database {
 

@@ -7,10 +7,8 @@ import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import net.larsan.ai.api.Encoding;
 import net.larsan.ai.api.MimeType;
 import net.larsan.ai.api.Model;
@@ -32,25 +30,9 @@ public class IngestResource {
     @Inject
     ChunkingConfig chunkingConfig;
 
-    @GET
-    @Path("/embedding/model")
-    public List<Model> getEmbeddingModels() {
-        return models.getEmbeddingModels();
-    }
-
-    @GET
-    @Path("/embedding/database")
-    public List<String> getDatabases() {
-        return dbs.getDatabases();
-    }
-
     @POST
-    @Path("/embedding/model/{provider}/{model}/database/{database}")
-    public void upsert(
-            @PathParam("provider") String provider,
-            @PathParam("model") String model,
-            @PathParam("database") String db,
-            UpsertRequest req) {
+    @Path("/embed")
+    public void upsert(UpsertRequest req) {
 
         Document d = createDocument(req);
 
@@ -60,10 +42,10 @@ public class IngestResource {
         List<TextSegment> chunks = chunk(d);
 
         // create embedding
-        List<Embedding> embeddings = embed(provider, model, chunks);
+        List<Embedding> embeddings = embed(req.provider(), req.model(), chunks);
 
         // upsert
-        Database database = getDatabase(db);
+        Database database = getDatabase(req.database());
         embeddings.forEach(e -> {
             database.upsert(req.toUpsert(e));
         });
@@ -74,7 +56,7 @@ public class IngestResource {
     }
 
     private List<Embedding> embed(String provider, String model, List<TextSegment> chunks) {
-        return models.getEmbedder(new Model(provider, model)).embedAll(chunks).content();
+        return models.getEmbedder(new Model(provider, model)).embed(chunks);
     }
 
     private List<TextSegment> chunk(Document d) {
@@ -82,10 +64,10 @@ public class IngestResource {
     }
 
     private Document createDocument(UpsertRequest req) {
-        MimeType t = MimeType.parse(req.mimeType());
-        Encoding e = Encoding.parse(req.encoding().orElse("plaintext"));
+        MimeType t = MimeType.parse(req.data().mimeType());
+        Encoding e = Encoding.parse(req.data().encoding().orElse("plaintext"));
         if (t == MimeType.TEXT) {
-            return new TextDocumentParser().parse(req.content(), e);
+            return new TextDocumentParser().parse(req.data().content(), e);
         } else {
             throw new UnsupportedOperationException("Not implemented");
         }

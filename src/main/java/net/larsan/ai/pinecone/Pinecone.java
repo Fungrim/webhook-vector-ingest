@@ -1,4 +1,4 @@
-package net.larsan.ai.embed;
+package net.larsan.ai.pinecone;
 
 import java.util.List;
 
@@ -8,6 +8,7 @@ import com.google.protobuf.Struct.Builder;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Inference;
 import net.larsan.ai.api.MetadataField;
+import net.larsan.ai.embed.Database;
 
 public class Pinecone implements Database {
 
