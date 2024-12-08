@@ -9,9 +9,9 @@ import dev.langchain4j.data.segment.TextSegment;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import net.larsan.ai.api.EmbeddingModel;
 import net.larsan.ai.api.Encoding;
 import net.larsan.ai.api.MimeType;
-import net.larsan.ai.api.Model;
 import net.larsan.ai.api.UpsertRequest;
 import net.larsan.ai.docs.TextDocumentParser;
 import net.larsan.ai.embed.Database;
@@ -42,12 +42,12 @@ public class IngestResource {
         List<TextSegment> chunks = chunk(d);
 
         // create embedding
-        List<Embedding> embeddings = embed(req.provider(), req.model(), chunks);
+        List<Embedding> embeddings = embed(req.embedding().provider(), req.embedding().name(), chunks);
 
         // upsert
-        Database database = getDatabase(req.database());
+        Database database = getDatabase(req.storage().provider());
         embeddings.forEach(e -> {
-            database.upsert(req.toUpsert(e));
+            database.upsert(req.toUpsert(e, req.storage().namespace()));
         });
     }
 
@@ -56,7 +56,7 @@ public class IngestResource {
     }
 
     private List<Embedding> embed(String provider, String model, List<TextSegment> chunks) {
-        return models.getEmbedder(new Model(provider, model)).embed(chunks);
+        return models.getEmbedder(new EmbeddingModel(provider, model)).embed(chunks);
     }
 
     private List<TextSegment> chunk(Document d) {
