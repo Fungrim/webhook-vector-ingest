@@ -42,7 +42,7 @@ public class IngestResource {
         List<TextSegment> chunks = chunk(d);
 
         // create embedding
-        List<Embedding> embeddings = embed(req.embedding().provider(), req.embedding().name(), chunks);
+        List<Embedding> embeddings = embed(req.embedding(), chunks);
 
         // upsert
         VectorStorage database = getDatabase(req.storage().provider());
@@ -55,8 +55,8 @@ public class IngestResource {
         return dbs.getDatabase(db);
     }
 
-    private List<Embedding> embed(String provider, String model, List<TextSegment> chunks) {
-        return models.getEmbedder(new EmbeddingModel(provider, model)).embed(chunks);
+    private List<Embedding> embed(EmbeddingModel model, List<TextSegment> chunks) {
+        return models.getEmbedder(model).embed(model.name(), chunks);
     }
 
     private List<TextSegment> chunk(Document d) {

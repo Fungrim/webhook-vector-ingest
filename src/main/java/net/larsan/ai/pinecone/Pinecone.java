@@ -1,6 +1,9 @@
 package net.larsan.ai.pinecone;
 
+import java.util.Collections;
 import java.util.List;
+
+import org.openapitools.inference.client.ApiException;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Struct.Builder;
@@ -30,8 +33,22 @@ public class Pinecone implements VectorStorage, Embedder {
     }
 
     @Override
-    public List<Embedding> embed(List<TextSegment> chunks) {
-        return null;
+    public List<Embedding> embed(String model, List<TextSegment> chunks) {
+        List<String> texts = chunks.stream().map(c -> c.text()).toList();
+        try {
+            return infererence.embed(model, Collections.emptyMap(), texts).getData().stream()
+                    .map(e -> new Embedding(toFloats(e))).toList();
+        } catch (ApiException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private float[] toFloats(org.openapitools.inference.client.model.Embedding e) {
+        float[] a = new float[e.getValues().size()];
+        for (int i = 0; i < a.length; i++) {
+            a[i] = e.getValues().get(i).floatValue();
+        }
+        return a;
     }
 
     private Struct toStruct(List<MetadataField> metadata) {
