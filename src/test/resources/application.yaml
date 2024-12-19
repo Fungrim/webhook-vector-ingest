@@ -1,15 +1,12 @@
 quarkus:
   swagger-ui:
-    always-include: true
+    always-include: false
   config:
     log:
       values: true
   log:
     category: 
       "io.smallrye.config":
-        level: info
-
-metadata:
-  html: 
-    include-headers: 
-      - title
+        level: debug
+  tika:
+    append-embedded-content: false

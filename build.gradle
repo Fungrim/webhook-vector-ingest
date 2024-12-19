@@ -9,30 +9,39 @@ repositories {
 }
 
 dependencies {
+    // PLATFORM
     implementation 'io.quarkus:quarkus-container-image-docker'
     implementation 'io.quarkiverse.langchain4j:quarkus-langchain4j-core:0.22.0'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
     implementation 'io.quarkus:quarkus-hibernate-validator'
-    // PLATFORM
     implementation 'io.quarkus:quarkus-config-yaml'
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-rest-client-jackson'
-    implementation 'io.quarkiverse.pdfbox:quarkus-pdfbox:1.0.0'
     implementation 'io.quarkus:quarkus-rest-jackson'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkiverse.tika:quarkus-tika:2.0.4'
 
     // INTERGATIONS
     implementation 'io.milvus:milvus-sdk-java:2.5.0'
     implementation 'io.pinecone:pinecone-client:3.1.0'
-    implementation 'dev.langchain4j:langchain4j-ollama:0.36.2'
     implementation 'io.github.ollama4j:ollama4j:1.0.78'
+
+    // LANGCHAIN4J
+    implementation 'dev.langchain4j:langchain4j-ollama:0.36.2'
     implementation 'dev.langchain4j:langchain4j-open-ai:0.36.2'
 
-
+    // UTIL
+    implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
+    implementation 'org.commonmark:commonmark:0.24.0'
+    implementation 'org.commonmark:commonmark-ext-gfm-strikethrough:0.24.0'
+    implementation 'org.commonmark:commonmark-ext-gfm-tables:0.24.0'
+    implementation 'org.jsoup:jsoup:1.18.3'
+    
     // TEST
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
 }
 
 group 'net.larsan.ai'

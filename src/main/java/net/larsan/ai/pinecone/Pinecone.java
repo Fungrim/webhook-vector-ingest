@@ -2,6 +2,7 @@ package net.larsan.ai.pinecone;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.openapitools.inference.client.ApiException;
 
@@ -13,10 +14,11 @@ import dev.langchain4j.data.segment.TextSegment;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Inference;
 import net.larsan.ai.api.MetadataField;
-import net.larsan.ai.embedding.Embedder;
-import net.larsan.ai.storage.Storagager;
+import net.larsan.ai.conf.PineconeConfig;
+import net.larsan.ai.embedding.EmbeddingFacade;
+import net.larsan.ai.storage.StorageFacade;
 
-public class Pinecone implements Storagager, Embedder {
+public class Pinecone implements StorageFacade, EmbeddingFacade {
 
     private final io.pinecone.clients.Pinecone client;
     private final Index index;
@@ -43,15 +45,20 @@ public class Pinecone implements Storagager, Embedder {
         }
     }
 
+    @SuppressWarnings("null")
     private float[] toFloats(org.openapitools.inference.client.model.Embedding e) {
-        float[] a = new float[e.getValues().size()];
-        for (int i = 0; i < a.length; i++) {
-            a[i] = e.getValues().get(i).floatValue();
+        if (e.getValues() == null || e.getValues().size() == 0) {
+            return new float[0];
+        } else {
+            float[] a = new float[e.getValues().size()];
+            for (int i = 0; i < a.length; i++) {
+                a[i] = e.getValues().get(i).floatValue();
+            }
+            return a;
         }
-        return a;
     }
 
-    private Struct toStruct(List<MetadataField> metadata) {
+    private Struct toStruct(Stream<MetadataField> metadata) {
         Builder b = Struct.newBuilder();
         metadata.forEach(f -> {
             b.putFields(f.name(), f.toProtobufValue());

@@ -1,6 +1,15 @@
 package net.larsan.ai;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
+import org.jboss.logging.Logger;
+
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
@@ -10,18 +19,18 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import net.larsan.ai.api.EmbeddingModel;
-import net.larsan.ai.api.Encoding;
-import net.larsan.ai.api.MimeType;
+import net.larsan.ai.api.MetadataField;
 import net.larsan.ai.api.UpsertRequest;
 import net.larsan.ai.api.VectorStorage;
 import net.larsan.ai.conf.ChunkingConfig;
 import net.larsan.ai.conf.EmbeddingConfig;
 import net.larsan.ai.conf.EmbeddingConfig.Model;
+import net.larsan.ai.conf.MetadataConfig;
 import net.larsan.ai.conf.VectorStorageConfig;
 import net.larsan.ai.conf.VectorStorageConfig.Storage;
-import net.larsan.ai.docs.TextDocumentParser;
-import net.larsan.ai.embedding.ModelService;
-import net.larsan.ai.storage.Storagager;
+import net.larsan.ai.embedding.EmbeddingModelService;
+import net.larsan.ai.parser.DocumentParser;
+import net.larsan.ai.storage.StorageFacade;
 import net.larsan.ai.storage.VectorStorageService;
 
 @Path("/api/v1")
@@ -31,7 +40,7 @@ public class IngestResource {
     VectorStorageService dbs;
 
     @Inject
-    ModelService models;
+    EmbeddingModelService models;
 
     @Inject
     ChunkingConfig chunkingConfig;
@@ -42,15 +51,24 @@ public class IngestResource {
     @Inject
     EmbeddingConfig embeddingConfig;
 
+    @Inject
+    MetadataConfig metadataConfig;
+
+    @Inject
+    Logger log;
+
+    @Inject
+    DocumentParser parser;
+
     @POST
     @Path("/upsert")
     public void upsert(UpsertRequest req) {
         VectorStorage storage = findStorage(req);
         EmbeddingModel embedding = findEmbedding(req);
+        Metadata parseMetadata = new Metadata();
 
-        Document d = createDocument(req);
-
-        // transform?
+        // parse
+        Document d = parser.parse(req, parseMetadata);
 
         // chunk
         List<TextSegment> chunks = chunk(d);
@@ -59,10 +77,29 @@ public class IngestResource {
         List<Embedding> embeddings = embed(embedding, chunks);
 
         // upsert
-        Storagager database = getDatabase(storage.provider());
+        StorageFacade database = getStorageFacade(storage.provider());
         embeddings.forEach(e -> {
-            database.upsert(req.toUpsert(e, storage.namespace()));
+            database.upsert(req.toUpsert(e, storage.namespace(), transformMetadata(parseMetadata)));
         });
+    }
+
+    private Optional<List<MetadataField>> transformMetadata(Metadata parseMetadata) {
+        if (metadataConfig.fileName().enabled() || metadataConfig.contentType().enabled()) {
+            List<MetadataField> fields = new ArrayList<>(2);
+            if (metadataConfig.fileName().enabled() && parseMetadata.get(TikaCoreProperties.RESOURCE_NAME_KEY) != null) {
+                fields.add(new MetadataField(metadataConfig.fileName().name(), toJson(parseMetadata.get(TikaCoreProperties.RESOURCE_NAME_KEY))));
+            }
+            if (metadataConfig.contentType().enabled() && parseMetadata.get(Metadata.CONTENT_TYPE) != null) {
+                fields.add(new MetadataField(metadataConfig.contentType().name(), toJson(parseMetadata.get(Metadata.CONTENT_TYPE))));
+            }
+            return Optional.of(fields);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private ValueNode toJson(String s) {
+        return TextNode.valueOf(s);
     }
 
     private EmbeddingModel findEmbedding(UpsertRequest req) {
@@ -87,7 +124,7 @@ public class IngestResource {
         }
     }
 
-    private Storagager getDatabase(String db) {
+    private StorageFacade getStorageFacade(String db) {
         return dbs.getDatabase(db);
     }
 
@@ -97,15 +134,5 @@ public class IngestResource {
 
     private List<TextSegment> chunk(Document d) {
         return new DocumentByParagraphSplitter(chunkingConfig.maxSize(), chunkingConfig.maxOverlap()).split(d);
-    }
-
-    private Document createDocument(UpsertRequest req) {
-        MimeType t = MimeType.parse(req.data().mimeType());
-        Encoding e = Encoding.parse(req.data().encoding().orElse("plaintext"));
-        if (t == MimeType.TEXT) {
-            return new TextDocumentParser().parse(req.data().content(), e);
-        } else {
-            throw new UnsupportedOperationException("Not implemented");
-        }
     }
 }

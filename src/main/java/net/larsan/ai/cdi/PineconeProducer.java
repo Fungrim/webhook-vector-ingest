@@ -4,8 +4,8 @@ import com.google.common.base.Strings;
 
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Singleton;
+import net.larsan.ai.conf.PineconeConfig;
 import net.larsan.ai.pinecone.Pinecone;
-import net.larsan.ai.pinecone.PineconeConfig;
 
 public class PineconeProducer {
 

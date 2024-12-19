@@ -1,10 +1,11 @@
 package net.larsan.ai.api;
 
+import java.nio.charset.Charset;
 import java.util.Base64;
 
 public enum Encoding {
 
-    PLAINTEXT("plaintext", (s) -> s.getBytes()),
+    UTF8("utf8", (s) -> s.getBytes(Charset.forName("UTF-8"))),
     BASE64("base64", (s) -> Base64.getDecoder().decode(s));
 
     public static Encoding parse(String s) {

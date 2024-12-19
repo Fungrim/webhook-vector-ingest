@@ -1,4 +1,4 @@
-package net.larsan.ai.pinecone;
+package net.larsan.ai.conf;
 
 import java.util.Optional;
 

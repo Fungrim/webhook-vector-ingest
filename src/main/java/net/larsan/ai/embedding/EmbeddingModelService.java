@@ -9,11 +9,11 @@ import jakarta.inject.Singleton;
 import net.larsan.ai.api.EmbeddingModel;
 import net.larsan.ai.conf.OllamaConfig;
 import net.larsan.ai.conf.OpenAIConfig;
+import net.larsan.ai.conf.PineconeConfig;
 import net.larsan.ai.pinecone.Pinecone;
-import net.larsan.ai.pinecone.PineconeConfig;
 
 @Singleton
-public class ModelService {
+public class EmbeddingModelService {
 
     @Inject
     OllamaConfig ollamaConf;
@@ -27,7 +27,7 @@ public class ModelService {
     @Inject
     Instance<Pinecone> pinecone;
 
-    public Embedder getEmbedder(EmbeddingModel model) {
+    public EmbeddingFacade getEmbedder(EmbeddingModel model) {
         if ("ollama".equals(model.provider()) && ollamaConf.isLegal()) {
             return (m, l) -> {
                 return OllamaEmbeddingModel.builder()

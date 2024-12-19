@@ -8,12 +8,12 @@ import com.google.gson.JsonObject;
 
 import io.milvus.v2.client.ConnectConfig;
 import io.milvus.v2.client.MilvusClientV2;
-import io.milvus.v2.service.utility.request.FlushReq;
 import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.service.vector.request.UpsertReq.UpsertReqBuilder;
-import net.larsan.ai.storage.Storagager;
+import net.larsan.ai.conf.MilvusConfig;
+import net.larsan.ai.storage.StorageFacade;
 
-public class Milvus implements Storagager {
+public class Milvus implements StorageFacade {
 
     private final ConnectConfig connectConfig;
     private final MilvusClientV2 client;
@@ -56,6 +56,6 @@ public class Milvus implements Storagager {
             builder.partitionName(req.namespace());
         }
         client.upsert(builder.build());
-        client.flush(FlushReq.builder().collectionNames(Collections.singletonList(conf.collection().get())).build());
+        // client.flush(FlushReq.builder().collectionNames(Collections.singletonList(conf.collection().get())).build());
     }
 }

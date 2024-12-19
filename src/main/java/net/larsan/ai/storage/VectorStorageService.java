@@ -8,10 +8,10 @@ import com.google.gson.Gson;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import net.larsan.ai.conf.MilvusConfig;
+import net.larsan.ai.conf.PineconeConfig;
 import net.larsan.ai.milvus.Milvus;
-import net.larsan.ai.milvus.MilvusConfig;
 import net.larsan.ai.pinecone.Pinecone;
-import net.larsan.ai.pinecone.PineconeConfig;
 
 @Singleton
 public class VectorStorageService {
@@ -42,7 +42,7 @@ public class VectorStorageService {
         return l;
     }
 
-    public Storagager getDatabase(String db) {
+    public StorageFacade getDatabase(String db) {
         if ("milvus".equals(db) && milvusConfig.isLegal()) {
             return new Milvus(milvusConfig, gson);
         }
