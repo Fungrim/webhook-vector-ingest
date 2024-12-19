@@ -23,7 +23,7 @@ And now you can say hi to the world (this example uses Ollama and the `mxbai-emb
 
 ```
 curl -X 'POST' \
-  'http://172.17.0.2:8080/api/v1/upsert' \
+  'http://.../api/v1/upsert' \
   -H 'accept: */*' \
   -H 'Content-Type: application/json' \
   -d '{
