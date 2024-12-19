@@ -19,7 +19,7 @@ docker run -it \
     -e MILVUS_COLLECTION="..." \
     fungrim/webhook-vector-ingest:1.0.0-SNAPSHOT
 ```
-And now you can say hi to the world (the example uses Ollama and the `mxbai-embed-large` embedding model): 
+And now you can say hi to the world (this example uses Ollama and the `mxbai-embed-large` embedding model): 
 
 ```
 curl -X 'POST' \
