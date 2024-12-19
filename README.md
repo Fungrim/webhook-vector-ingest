@@ -1,6 +1,6 @@
 # Webhook Vector Ingest
 This project is a simple Webhook receiver that ingests content into a Vector database. It uses embedding
-providers via API, and Vector databases via API. 
+providers and vector databases via API. 
 
 * Document types: almost all
 * Embedding providers: Ollama, OpenAI and Pinecone
