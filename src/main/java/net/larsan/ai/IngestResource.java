@@ -68,12 +68,19 @@ public class IngestResource {
         VectorStorage storage = findStorage(req);
         EmbeddingModel embedding = findEmbedding(req);
         Metadata parseMetadata = new Metadata();
+        String dataId = req.data().id().orElse("n/a");
+
+        log.infof("Upsert started for document ID %s for storage %s and embedding %s/%s", dataId, storage.provider(), embedding.provider(), embedding.name());
 
         // parse
         Document d = parser.parse(req, parseMetadata);
 
+        log.debugf("Parsed document ID %s as: %s", dataId, parseMetadata.get(Metadata.CONTENT_TYPE));
+
         // chunk
         List<TextSegment> chunks = chunk(d, req.chunking());
+
+        log.debugf("Chunked document ID %s in %s chunks", dataId, chunks.size());
 
         // create embedding
         List<Embedding> embeddings = embed(embedding, chunks);
@@ -83,6 +90,8 @@ public class IngestResource {
         embeddings.forEach(e -> {
             database.upsert(req.toUpsert(e, storage.namespace(), transformMetadata(parseMetadata)));
         });
+
+        log.debugf("Document ID %s stored as %s embeddings", dataId, embeddings.size());
 
         return Response.status(201).build();
     }

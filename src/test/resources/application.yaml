@@ -8,7 +8,9 @@ quarkus:
     category: 
       "io.smallrye.config":
         level: debug
-
+    category:
+      "net.larsan.ai":
+        level: debug
 storage:
   default-storage:
     provider: "milvus"
