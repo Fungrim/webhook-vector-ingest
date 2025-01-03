@@ -1,1 +1,1 @@
-net.larsan.ai.conf.FileConfigSourceFactory
+io.github.fungrim.conf.FileConfigSourceFactory

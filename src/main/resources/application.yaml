@@ -8,5 +8,5 @@ quarkus:
     category: 
       "io.smallrye.config":
         level: info
-      "net.larsan.ai":
+      "io.github.fungrim":
         level: debug

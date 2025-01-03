@@ -6,7 +6,7 @@ quarkus:
       values: true
   log:
     category:
-      "net.larsan.ai":
+      "io.github.fungrim":
         level: debug
       "io.smallrye.config":
         level: info
