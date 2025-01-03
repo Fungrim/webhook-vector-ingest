@@ -8,5 +8,12 @@ quarkus:
     category: 
       "io.smallrye.config":
         level: debug
-  tika:
-    append-embedded-content: false
+
+storage:
+  default-storage:
+    provider: "milvus"
+
+embedding:
+  default-model: 
+    provider: "ollama"
+    name: "my-model"

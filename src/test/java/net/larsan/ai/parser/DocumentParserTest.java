@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import net.larsan.ai.DocumentLoader;
 import net.larsan.ai.api.Encoding;
 import net.larsan.ai.api.UpsertRequest;
 import net.larsan.ai.api.UpsertRequest.Data;
@@ -79,6 +78,7 @@ public class DocumentParserTest {
 
     private UpsertRequest toReq(byte[] bytes) {
         return new UpsertRequest(
+                Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
                 new Data(

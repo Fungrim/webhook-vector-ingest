@@ -12,12 +12,14 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
+import net.larsan.ai.api.ChunkingSpec;
+import net.larsan.ai.api.ChunkingStrategy;
 import net.larsan.ai.api.EmbeddingModel;
 import net.larsan.ai.api.MetadataField;
 import net.larsan.ai.api.UpsertRequest;
@@ -62,7 +64,7 @@ public class IngestResource {
 
     @POST
     @Path("/upsert")
-    public void upsert(UpsertRequest req) {
+    public Response upsert(UpsertRequest req) {
         VectorStorage storage = findStorage(req);
         EmbeddingModel embedding = findEmbedding(req);
         Metadata parseMetadata = new Metadata();
@@ -71,7 +73,7 @@ public class IngestResource {
         Document d = parser.parse(req, parseMetadata);
 
         // chunk
-        List<TextSegment> chunks = chunk(d);
+        List<TextSegment> chunks = chunk(d, req.chunking());
 
         // create embedding
         List<Embedding> embeddings = embed(embedding, chunks);
@@ -81,6 +83,8 @@ public class IngestResource {
         embeddings.forEach(e -> {
             database.upsert(req.toUpsert(e, storage.namespace(), transformMetadata(parseMetadata)));
         });
+
+        return Response.status(201).build();
     }
 
     private Optional<List<MetadataField>> transformMetadata(Metadata parseMetadata) {
@@ -132,7 +136,16 @@ public class IngestResource {
         return models.getEmbedder(model).embed(model.name(), chunks);
     }
 
-    private List<TextSegment> chunk(Document d) {
-        return new DocumentByParagraphSplitter(chunkingConfig.maxSize(), chunkingConfig.maxOverlap()).split(d);
+    private List<TextSegment> chunk(Document d, Optional<ChunkingSpec> chunkingSpec) {
+        ChunkingStrategy strat = chunkingConfig.strategy();
+        int max = chunkingConfig.limits().maxSize();
+        int maxOverlap = chunkingConfig.limits().maxOverlap();
+        if (chunkingSpec.isPresent()) {
+            ChunkingSpec spec = chunkingSpec.get();
+            strat = spec.strategy();
+            max = spec.limits().maxSize();
+            maxOverlap = spec.limits().maxOverlap();
+        }
+        return strat.create(max, maxOverlap).split(d);
     }
 }

@@ -4,16 +4,25 @@ import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import net.larsan.ai.api.ChunkingStrategy;
 
 @ConfigMapping(prefix = "chunking")
 public interface ChunkingConfig {
 
-    @Positive
-    @WithDefault("512")
-    int maxSize();
+    @WithDefault("WORD")
+    ChunkingStrategy strategy();
 
-    @PositiveOrZero
-    @WithDefault("0")
-    int maxOverlap();
+    Limits limits();
 
+    public interface Limits {
+
+        @Positive
+        @WithDefault("512")
+        int maxSize();
+
+        @PositiveOrZero
+        @WithDefault("0")
+        int maxOverlap();
+
+    }
 }

@@ -16,6 +16,7 @@ import net.larsan.ai.storage.StorageFacade;
 public record UpsertRequest(
         Optional<EmbeddingModel> embedding,
         Optional<VectorStorage> storage,
+        Optional<ChunkingSpec> chunking,
         @Valid @NotNull Data data) {
 
     public static record Data(

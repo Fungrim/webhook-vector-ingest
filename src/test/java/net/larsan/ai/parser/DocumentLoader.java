@@ -1,4 +1,4 @@
-package net.larsan.ai;
+package net.larsan.ai.parser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
