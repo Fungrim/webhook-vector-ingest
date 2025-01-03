@@ -14,11 +14,14 @@ public interface PineconeConfig {
 
     Optional<String> index();
 
+    Optional<String> uri();
+
     @WithDefault("true")
     boolean enabled();
 
     public default boolean isLegal() {
         return !Strings.isNullOrEmpty(apiKey().orElse(null))
-                && !Strings.isNullOrEmpty(index().orElse(null));
+                && !Strings.isNullOrEmpty(index().orElse(null))
+                && !Strings.isNullOrEmpty(uri().orElse(null));
     }
 }

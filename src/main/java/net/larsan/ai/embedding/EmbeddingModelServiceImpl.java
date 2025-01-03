@@ -47,11 +47,11 @@ public class EmbeddingModelServiceImpl implements EmbeddingModelService {
                 return oai.build().embedAll(l).content();
             };
         }
-        if ("pinecode".equals(model.provider()) && openAiConf.isLegal()) {
+        if ("pinecone".equals(model.provider()) && pineconeConfig.isLegal()) {
             return (m, l) -> {
                 return pinecone.get().embed(m, l);
             };
         }
-        throw new IllegalStateException("Embedding model " + model.provider() + "/" + model.name() + " not found");
+        throw new IllegalStateException("Embedding model " + model.provider() + "/" + model.name() + " not found, or configuration is invalid");
     }
 }

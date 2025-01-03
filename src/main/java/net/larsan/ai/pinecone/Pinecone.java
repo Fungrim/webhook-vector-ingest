@@ -38,7 +38,7 @@ public class Pinecone implements StorageFacade, EmbeddingFacade {
     public List<Embedding> embed(String model, List<TextSegment> chunks) {
         List<String> texts = chunks.stream().map(c -> c.text()).toList();
         try {
-            return infererence.embed(model, Collections.emptyMap(), texts).getData().stream()
+            return infererence.embed(model, Collections.singletonMap("input_type", "passage"), texts).getData().stream()
                     .map(e -> new Embedding(toFloats(e))).toList();
         } catch (ApiException e) {
             throw new IllegalStateException(e);

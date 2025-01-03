@@ -18,6 +18,9 @@ public class PineconeProducer {
         if (Strings.isNullOrEmpty(conf.apiKey().orElse(null))) {
             throw new IllegalStateException("Pinecone api key is empty");
         }
+        if (Strings.isNullOrEmpty(conf.uri().orElse(null))) {
+            throw new IllegalStateException("Pinecone uri is empty");
+        }
         return new Pinecone(conf);
     }
 }
