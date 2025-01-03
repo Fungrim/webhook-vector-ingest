@@ -6,6 +6,11 @@ import java.util.Optional;
 
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
+import org.eclipse.microprofile.openapi.annotations.security.SecuritySchemes;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -36,6 +41,9 @@ import net.larsan.ai.storage.StorageFacade;
 import net.larsan.ai.storage.VectorStorageService;
 
 @Path("/api/v1")
+@SecuritySchemes(value = {
+        @SecurityScheme(securitySchemeName = "apiKey", type = SecuritySchemeType.APIKEY, apiKeyName = "x-api-key", in = SecuritySchemeIn.HEADER)
+})
 public class IngestResource {
 
     @Inject
@@ -64,6 +72,7 @@ public class IngestResource {
 
     @POST
     @Path("/upsert")
+    @SecurityRequirement(name = "apiKey")
     public Response upsert(UpsertRequest req) {
         VectorStorageSpec storage = findStorage(req);
         EmbeddingModelSpec embedding = findEmbedding(req);
