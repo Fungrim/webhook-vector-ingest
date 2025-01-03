@@ -49,8 +49,8 @@ jobs:
           context: .
           file: src/main/docker/Dockerfile.jvm
           tags: |
-            fungrim/webhook-vector-ingest:latest
-            fungrim/webhook-vector-ingest:0.0.${{github.run_number}}
+            ghcr.io/fungrim/webhook-vector-ingest:latest
+            ghcr.io/fungrim/webhook-vector-ingest:0.0.${{github.run_number}}
 
   dependencies:
 
