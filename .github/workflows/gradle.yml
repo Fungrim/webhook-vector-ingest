@@ -32,11 +32,22 @@ jobs:
     - name: Build
       run: ./gradlew build
 
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Containerize
       uses: docker/build-push-action@v6
       with:
           push: true
           context: .
+          file: src/main/docker/Dockerfile.jvm
           tags: |
             fungrim/webhook-vector-ingest:latest
             fungrim/webhook-vector-ingest:0.0.${{github.run_number}}
