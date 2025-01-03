@@ -32,9 +32,6 @@ jobs:
     - name: Build
       run: ./gradlew build
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
     - name: Contanerize
       uses: docker/build-push-action@v6
       with:
