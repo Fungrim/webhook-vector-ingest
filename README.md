@@ -6,12 +6,12 @@ all document types with the following embedding providers...
 - Pinecone
 - Ollama
 
-... and the these Vector databases...
+... and these Vector databases...
 
 - Milvus
 - Pinecone
 
-... with the these transformations: 
+... with these transformations: 
 
 - HTML markup removal
 - Markdown markup removal
