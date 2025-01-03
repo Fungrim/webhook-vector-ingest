@@ -3,10 +3,10 @@ FROM registry.access.redhat.com/ubi8/openjdk-21:1.20
 ENV LANGUAGE='en_US:en'
 
 # We make four distinct layers so if there are application changes the library layers can be re-used
-COPY --chown=185 ./build/quarkus-app/lib/ /deployments/lib/
-COPY --chown=185 ./build/quarkus-app/*.jar /deployments/
-COPY --chown=185 ./build/quarkus-app/app/ /deployments/app/
-COPY --chown=185 ./build/quarkus-app/quarkus/ /deployments/quarkus/
+COPY --chown=185 build/quarkus-app/lib/ /deployments/lib/
+COPY --chown=185 build/quarkus-app/*.jar /deployments/
+COPY --chown=185 build/quarkus-app/app/ /deployments/app/
+COPY --chown=185 build/quarkus-app/quarkus/ /deployments/quarkus/
 
 EXPOSE 8080
 USER 185

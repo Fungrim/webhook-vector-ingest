@@ -32,10 +32,11 @@ jobs:
     - name: Build
       run: ./gradlew build
 
-    - name: Contanerize
+    - name: Containerize
       uses: docker/build-push-action@v6
       with:
           push: true
+          context: .
           tags: |
             fungrim/webhook-vector-ingest:latest
             fungrim/webhook-vector-ingest:0.0.${{github.run_number}}
