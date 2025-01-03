@@ -14,8 +14,8 @@ import jakarta.validation.constraints.NotBlank;
 import net.larsan.ai.storage.StorageFacade;
 
 public record UpsertRequest(
-        Optional<EmbeddingModel> embedding,
-        Optional<VectorStorage> storage,
+        Optional<EmbeddingModelSpec> embedding,
+        Optional<VectorStorageSpec> storage,
         Optional<ChunkingSpec> chunking,
         @Valid @NotNull Data data) {
 

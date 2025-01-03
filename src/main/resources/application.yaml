@@ -8,8 +8,5 @@ quarkus:
     category: 
       "io.smallrye.config":
         level: info
-
-metadata:
-  html: 
-    include-headers: 
-      - title
+      "net.larsan.ai":
+        level: debug

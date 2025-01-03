@@ -5,12 +5,12 @@ quarkus:
     log:
       values: true
   log:
-    category: 
-      "io.smallrye.config":
-        level: debug
     category:
       "net.larsan.ai":
         level: debug
+      "io.smallrye.config":
+        level: info
+
 storage:
   default-storage:
     provider: "milvus"
@@ -18,4 +18,10 @@ storage:
 embedding:
   default-model: 
     provider: "ollama"
-    name: "my-model"
+    name: "mxbai-embed-large:latest"
+
+metadata:
+  html: 
+    include-headers: 
+      - title
+    

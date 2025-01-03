@@ -20,10 +20,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import net.larsan.ai.api.ChunkingSpec;
 import net.larsan.ai.api.ChunkingStrategy;
-import net.larsan.ai.api.EmbeddingModel;
+import net.larsan.ai.api.EmbeddingModelSpec;
 import net.larsan.ai.api.MetadataField;
 import net.larsan.ai.api.UpsertRequest;
-import net.larsan.ai.api.VectorStorage;
+import net.larsan.ai.api.VectorStorageSpec;
 import net.larsan.ai.conf.ChunkingConfig;
 import net.larsan.ai.conf.EmbeddingConfig;
 import net.larsan.ai.conf.EmbeddingConfig.Model;
@@ -65,8 +65,8 @@ public class IngestResource {
     @POST
     @Path("/upsert")
     public Response upsert(UpsertRequest req) {
-        VectorStorage storage = findStorage(req);
-        EmbeddingModel embedding = findEmbedding(req);
+        VectorStorageSpec storage = findStorage(req);
+        EmbeddingModelSpec embedding = findEmbedding(req);
         Metadata parseMetadata = new Metadata();
         String dataId = req.data().id().orElse("n/a");
 
@@ -115,23 +115,23 @@ public class IngestResource {
         return TextNode.valueOf(s);
     }
 
-    private EmbeddingModel findEmbedding(UpsertRequest req) {
+    private EmbeddingModelSpec findEmbedding(UpsertRequest req) {
         if (req.embedding().isPresent()) {
             return req.embedding().get();
         } else if (embeddingConfig.defaultModel().isPresent()) {
             Model m = embeddingConfig.defaultModel().get();
-            return new EmbeddingModel(m.provider(), m.name());
+            return new EmbeddingModelSpec(m.provider(), m.name());
         } else {
             throw new IllegalStateException("No default embedding configured");
         }
     }
 
-    private VectorStorage findStorage(UpsertRequest req) {
+    private VectorStorageSpec findStorage(UpsertRequest req) {
         if (req.storage().isPresent()) {
             return req.storage().get();
         } else if (storageConfig.defaultStorage().isPresent()) {
             Storage storage = storageConfig.defaultStorage().get();
-            return new VectorStorage(storage.provider(), storage.namespace());
+            return new VectorStorageSpec(storage.provider(), storage.namespace());
         } else {
             throw new IllegalStateException("No default storage configured");
         }
@@ -141,7 +141,7 @@ public class IngestResource {
         return dbs.getDatabase(db);
     }
 
-    private List<Embedding> embed(EmbeddingModel model, List<TextSegment> chunks) {
+    private List<Embedding> embed(EmbeddingModelSpec model, List<TextSegment> chunks) {
         return models.getEmbedder(model).embed(model.name(), chunks);
     }
 

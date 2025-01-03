@@ -4,6 +4,6 @@ import java.util.Optional;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record VectorStorage(@NotBlank String provider, Optional<String> namespace) {
+public record VectorStorageSpec(@NotBlank String provider, Optional<String> namespace) {
 
 }

@@ -6,7 +6,7 @@ import dev.langchain4j.model.openai.OpenAiEmbeddingModel.OpenAiEmbeddingModelBui
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import net.larsan.ai.api.EmbeddingModel;
+import net.larsan.ai.api.EmbeddingModelSpec;
 import net.larsan.ai.conf.OllamaConfig;
 import net.larsan.ai.conf.OpenAIConfig;
 import net.larsan.ai.conf.PineconeConfig;
@@ -28,7 +28,7 @@ public class EmbeddingModelServiceImpl implements EmbeddingModelService {
     Instance<Pinecone> pinecone;
 
     @Override
-    public EmbeddingFacade getEmbedder(EmbeddingModel model) {
+    public EmbeddingFacade getEmbedder(EmbeddingModelSpec model) {
         if ("ollama".equals(model.provider()) && ollamaConf.isLegal()) {
             return (m, l) -> {
                 return OllamaEmbeddingModel.builder()

@@ -11,10 +11,10 @@ import io.restassured.RestAssured;
 import jakarta.enterprise.context.ApplicationScoped;
 import net.larsan.ai.api.ChunkingSpec;
 import net.larsan.ai.api.ChunkingStrategy;
-import net.larsan.ai.api.EmbeddingModel;
+import net.larsan.ai.api.EmbeddingModelSpec;
 import net.larsan.ai.api.UpsertRequest;
 import net.larsan.ai.api.UpsertRequest.Data;
-import net.larsan.ai.api.VectorStorage;
+import net.larsan.ai.api.VectorStorageSpec;
 import net.larsan.ai.embedding.EmbeddingFacade;
 import net.larsan.ai.embedding.EmbeddingModelService;
 import net.larsan.ai.storage.StorageFacade;
@@ -39,7 +39,7 @@ public class IngestResourceTest {
     @Test
     public void testFull() {
         Data d = new Data(Optional.of("667"), Optional.of("application/json"), Optional.of("hello.json"), "{ \"text\" = \"Hello World!\" }", Optional.empty(), Optional.empty());
-        UpsertRequest req = new UpsertRequest(Optional.of(new EmbeddingModel("ollama", "model2")), Optional.of(new VectorStorage("pinecone", Optional.empty())),
+        UpsertRequest req = new UpsertRequest(Optional.of(new EmbeddingModelSpec("ollama", "model2")), Optional.of(new VectorStorageSpec("pinecone", Optional.empty())),
                 Optional.of(new ChunkingSpec(ChunkingStrategy.PARAGRAPH, new ChunkingSpec.Limits(512, 128))), d);
         RestAssured.given()
                 .contentType("application/json")
@@ -55,7 +55,7 @@ public class IngestResourceTest {
     public static class ModelService implements EmbeddingModelService {
 
         @Override
-        public EmbeddingFacade getEmbedder(EmbeddingModel model) {
+        public EmbeddingFacade getEmbedder(EmbeddingModelSpec model) {
             return (m, c) -> List.of();
         }
     }
