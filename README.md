@@ -1,5 +1,5 @@
 # Webhook Vector Ingest
-This project contains a simple Rest API for a kind of "poor mans RAG ingestion". It supports the following almost 
+This project contains a simple Rest API for a kind of "poor mans RAG ingestion". It supports the almost 
 all document types with the following embedding providers...
 
 - OpenAI
