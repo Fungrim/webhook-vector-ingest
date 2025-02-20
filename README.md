@@ -100,6 +100,7 @@ openai:
 pinecone:
   index: "..."
   api-key: "..."
+  uri: "..."
   
 chunking:
   strategy: "PARAGRAPH"
@@ -141,6 +142,7 @@ are planning on using Milvus, then all Milvus configuration options are mandator
 | --- | --- | --- | --- | --- |
 | pinecone.index | string | yes | n/a | Index name for storage |
 | pinecone.api-key | string | yes | n/a | Pinecode access token |
+| pinecone.uri | string | yes | n/a | Database host URI |
 
 #### Ollama
 

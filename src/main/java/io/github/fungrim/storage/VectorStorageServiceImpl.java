@@ -33,7 +33,7 @@ public class VectorStorageServiceImpl implements VectorStorageService {
         if ("milvus".equals(db) && milvusConfig.isLegal()) {
             return new Milvus(milvusConfig, gson);
         }
-        if ("pinecone".equals(db) && milvusConfig.isLegal()) {
+        if ("pinecone".equals(db) && pineconeConfig.isLegal()) {
             return new Pinecone(pineconeConfig);
         }
         throw new IllegalStateException("Database '" + db + "' not found");

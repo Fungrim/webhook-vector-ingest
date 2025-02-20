@@ -1,7 +1,10 @@
 package io.github.fungrim.parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
@@ -88,8 +91,19 @@ public class DocumentParser {
         if (metadataConfig.fileName().enabled() && req.data().fileName().isPresent()) {
             parseMetadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, req.data().fileName().orElse("unknown"));
         }
-        byte[] content = req.data().encoding().orElse(Encoding.UTF8).toCleartext(req.data().content());
-        try (InputStream tikaStream = TikaInputStream.get(new ByteArrayInputStream(content))) {
+        InputStream in = null;
+        if (req.data().fetchContent().orElse(false)) {
+            byte[] bytes = req.data().encoding().orElse(Encoding.UTF8).toCleartext(req.data().content());
+            in = new ByteArrayInputStream(bytes);
+        } else {
+            try {
+                in = new URI(req.data().content()).toURL().openStream();
+            } catch (IOException | URISyntaxException e) {
+                log.error("Failed to open url: " + req.data().content(), e);
+                throw new IllegalStateException(e);
+            }
+        }
+        try (InputStream tikaStream = TikaInputStream.get(in)) {
             Parser p = new AutoDetectParser();
             BodyContentHandler handler = new BodyContentHandler(-1);
             p.parse(tikaStream, handler, parseMetadata, new ParseContext());
@@ -97,14 +111,22 @@ public class DocumentParser {
         } catch (Exception e) {
             log.error("Failed to parse document", e);
             throw new IllegalStateException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.warn("Failed to close input stream", e);
+                }
+            }
         }
-
         /*
          * TikaContent cont = null;
          * if (Strings.isNullOrEmpty(parseMetadata.get(Metadata.CONTENT_TYPE))) {
          * cont = parser.parse(new ByteArrayInputStream(content));
          * } else {
-         * cont = parser.parse(new ByteArrayInputStream(content), parseMetadata.get(Metadata.CONTENT_TYPE));
+         * cont = parser.parse(new ByteArrayInputStream(content),
+         * parseMetadata.get(Metadata.CONTENT_TYPE));
          * }
          * if (cont.getMetadata() != null) {
          * final TikaMetadata m = cont.getMetadata();
