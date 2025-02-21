@@ -93,15 +93,15 @@ public class DocumentParser {
         }
         InputStream in = null;
         if (req.data().fetchContent().orElse(false)) {
-            byte[] bytes = req.data().encoding().orElse(Encoding.UTF8).toCleartext(req.data().content());
-            in = new ByteArrayInputStream(bytes);
-        } else {
             try {
                 in = new URI(req.data().content()).toURL().openStream();
             } catch (IOException | URISyntaxException e) {
                 log.error("Failed to open url: " + req.data().content(), e);
                 throw new IllegalStateException(e);
             }
+        } else {
+            byte[] bytes = req.data().encoding().orElse(Encoding.UTF8).toCleartext(req.data().content());
+            in = new ByteArrayInputStream(bytes);
         }
         try (InputStream tikaStream = TikaInputStream.get(in)) {
             Parser p = new AutoDetectParser();

@@ -88,6 +88,7 @@ public class DocumentParserTest {
                         Optional.empty(),
                         Base64.getEncoder().encodeToString(bytes),
                         Optional.empty(),
-                        Optional.of(Encoding.BASE64)));
+                        Optional.of(Encoding.BASE64),
+                        Optional.empty()));
     }
 }

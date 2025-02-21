@@ -25,7 +25,7 @@ public class IngestResourceTest {
 
     @Test
     public void testOnlyData() {
-        Data d = new Data(Optional.of("666"), Optional.empty(), Optional.empty(), "{ \"text\" = \"Hello World!\" }", Optional.empty(), Optional.empty());
+        Data d = new Data(Optional.of("666"), Optional.empty(), Optional.empty(), "{ \"text\" = \"Hello World!\" }", Optional.empty(), Optional.empty(), Optional.empty());
         UpsertRequest req = new UpsertRequest(Optional.empty(), Optional.empty(), Optional.empty(), d);
         RestAssured.given()
                 .contentType("application/json")
@@ -38,7 +38,7 @@ public class IngestResourceTest {
 
     @Test
     public void testFull() {
-        Data d = new Data(Optional.of("667"), Optional.of("application/json"), Optional.of("hello.json"), "{ \"text\" = \"Hello World!\" }", Optional.empty(), Optional.empty());
+        Data d = new Data(Optional.of("667"), Optional.of("application/json"), Optional.of("hello.json"), "{ \"text\" = \"Hello World!\" }", Optional.empty(), Optional.empty(), Optional.empty());
         UpsertRequest req = new UpsertRequest(Optional.of(new EmbeddingModelSpec("ollama", "model2")), Optional.of(new VectorStorageSpec("pinecone", Optional.empty())),
                 Optional.of(new ChunkingSpec(ChunkingStrategy.PARAGRAPH, new ChunkingSpec.Limits(512, 128))), d);
         RestAssured.given()

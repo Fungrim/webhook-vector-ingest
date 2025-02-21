@@ -27,7 +27,7 @@ docker run -it \
     -e MILVUS_TOKEN="..." \
     -e MILVUS_DATABASE="..." \
     -e MILVUS_COLLECTION="..." \
-    ghcr.io/fungrim/webhook-vector-ingest:0.0.11
+    ghcr.io/fungrim/webhook-vector-ingest:0.0.16
 ```
 
 However, it is easier to configure the service with a custom configuration file (see below), that 
@@ -37,7 +37,7 @@ you can mount like this:
 docker run -it \
     --volume ${PWD}/myconfig.yaml:/deployments/config/application.yaml \
     -e INGEST_CONFIG=/deployments/config/application.yaml \
-    ghcr.io/fungrim/webhook-vector-ingest:0.0.11
+    ghcr.io/fungrim/webhook-vector-ingest:0.0.16
 ```
 
 ## Swagger UI
@@ -221,7 +221,7 @@ The `id` column cannot be renmamed, but the vector column and the metadata colum
 | milvus.vector-field-name | string | no | "vector" | Column name of the vector |
 
 ## Request object
-The request is an HTTP PUT with JSON object that contains the data to ingest, and optionally metadata and 
+The request is an HTTP POST with JSON object that contains the data to ingest, and optionally metadata and 
 storage and embedding model overrides. 
 
 | Key | Type | Mandatory | Default value | Comment
@@ -233,6 +233,7 @@ storage and embedding model overrides.
 | data.metadata | map(string, string) | false | n/a | Additional metadata as a dictionary |
 | data.encoding | string | false | "UTF8" | The `content` encoding, values: "BASE64" or "UTF8" |
 | data.content | string | true | n/a | The content, use `encoding: BASE64` for binary files |
+| data.fetchContent | boolean | false | false | If `true` the `content` is used as an URL to read from |
 | embedding | object | false | n/a | Optional embedding model |
 | embedding.provider | string | true | n/a | Emnbedding mode provider |
 | embedding.name | string | false | n/a | Embedding model name |
@@ -267,6 +268,18 @@ need to be `BASE64` encoded first:
   "data": {
     "content": "...",
     "encoding": "BASE64"
+  }
+}
+```
+
+#### Pulling content from URL
+In order to pull from an URL the `content` field should be a valid URL and `fetchContent` must be `true`: 
+
+```json
+{
+  "data": {
+    "content": "https://m.little.url/file.pdf",
+    "fetchContent": true
   }
 }
 ```
