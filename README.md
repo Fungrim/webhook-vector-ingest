@@ -5,6 +5,7 @@ all document types with the following embedding providers...
 - OpenAI
 - Pinecone
 - Ollama
+- Mistral
 
 ... and these Vector databases...
 
@@ -91,6 +92,9 @@ milvus:
   database: "..."
   collection: "..."
 
+mistral:
+  api-key: "..."
+
 ollama:
   uri: "..."
 
@@ -156,13 +160,19 @@ are planning on using Milvus, then all Milvus configuration options are mandator
 | --- | --- | --- | --- | --- |
 | openai.api-key | string | yes | n/a | The OpenAI access token |
 
+#### Mistral
+
+| Key | Type | Mandatory | Default value | Comment
+| --- | --- | --- | --- | --- |
+| mistral.api-key | string | yes | n/a | The Mistral access token |
+
 ### Default providers
 You can specify default providers to use. This can be overridden by the Rest API. 
 
 | Key | Type | Mandatory | Default value | Comment
 | --- | --- | --- | --- | --- |
 | storage.default-storage.provider | string | no | n/a | Values: "milvus" or "pinecone" |
-| embedding.default-model.provider | string | no | n/a | Values: "ollama", "openai" or "pinecone" |
+| embedding.default-model.provider | string | no | n/a | Values: "ollama", "openai", "mistral" or "pinecone" |
 | embedding.default-model.name | string | no | n/a | The model name, e.g. "mxbai-embed-large:latest" | 
 
 ### Chunking
