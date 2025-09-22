@@ -28,7 +28,7 @@ docker run -it \
     -e MILVUS_TOKEN="..." \
     -e MILVUS_DATABASE="..." \
     -e MILVUS_COLLECTION="..." \
-    ghcr.io/fungrim/webhook-vector-ingest:0.0.16
+    ghcr.io/fungrim/webhook-vector-ingest:latest
 ```
 
 However, it is easier to configure the service with a custom configuration file (see below), that 
@@ -38,7 +38,7 @@ you can mount like this:
 docker run -it \
     --volume ${PWD}/myconfig.yaml:/deployments/config/application.yaml \
     -e INGEST_CONFIG=/deployments/config/application.yaml \
-    ghcr.io/fungrim/webhook-vector-ingest:0.0.16
+    ghcr.io/fungrim/webhook-vector-ingest:latest
 ```
 
 ## Swagger UI
