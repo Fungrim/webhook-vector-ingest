@@ -1,9 +1,12 @@
 package io.github.fungrim.embedding;
 
+import dev.langchain4j.model.mistralai.MistralAiEmbeddingModel;
+import dev.langchain4j.model.mistralai.MistralAiEmbeddingModel.MistralAiEmbeddingModelBuilder;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder;
 import io.github.fungrim.api.EmbeddingModelSpec;
+import io.github.fungrim.conf.MistralConfig;
 import io.github.fungrim.conf.OllamaConfig;
 import io.github.fungrim.conf.OpenAIConfig;
 import io.github.fungrim.conf.PineconeConfig;
@@ -26,6 +29,9 @@ public class EmbeddingModelServiceImpl implements EmbeddingModelService {
 
     @Inject
     Instance<Pinecone> pinecone;
+
+    @Inject
+    MistralConfig mistralConf;
 
     @Override
     public EmbeddingFacade getEmbedder(EmbeddingModelSpec model) {
@@ -52,6 +58,17 @@ public class EmbeddingModelServiceImpl implements EmbeddingModelService {
                 return pinecone.get().embed(m, l);
             };
         }
-        throw new IllegalStateException("Embedding model " + model.provider() + "/" + model.name() + " not found, or configuration is invalid");
+        if ("mistral".equals(model.provider()) && mistralConf.isLegal()) {
+            return (m, l) -> {
+                MistralAiEmbeddingModelBuilder builder = MistralAiEmbeddingModel.builder()
+                        .apiKey(mistralConf.apiKey().get());
+                if (mistralConf.uri().isPresent()) {
+                    builder = builder.baseUrl(mistralConf.uri().get());
+                }
+                return builder.build().embedAll(l).content();
+            };
+        }
+        throw new IllegalStateException(
+                "Embedding model " + model.provider() + "/" + model.name() + " not found, or configuration is invalid");
     }
 }

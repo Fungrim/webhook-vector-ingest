@@ -30,6 +30,7 @@ dependencies {
     // LANGCHAIN4J
     implementation 'dev.langchain4j:langchain4j-ollama:0.36.2'
     implementation 'dev.langchain4j:langchain4j-open-ai:0.36.2'
+    implementation 'dev.langchain4j:langchain4j-mistral-ai:0.36.2'
 
     // UTIL
     implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
