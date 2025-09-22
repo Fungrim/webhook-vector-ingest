@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     // PLATFORM
-    implementation 'io.quarkus:quarkus-container-image-docker'
+    implementation 'io.quarkus:quarkus-container-image-jib'
     implementation 'io.quarkiverse.langchain4j:quarkus-langchain4j-core:0.22.0'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
     implementation 'io.quarkus:quarkus-hibernate-validator'
