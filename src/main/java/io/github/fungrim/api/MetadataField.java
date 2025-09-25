@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 import com.google.gson.JsonObject;
 import com.google.protobuf.Value;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record MetadataField(
-        String name,
+        @NotBlank String key,
         @Schema(implementation = Object.class) ValueNode value) {
 
     public Value toProtobufValue() {
@@ -26,11 +28,11 @@ public record MetadataField(
     @Schema(hidden = true)
     public void setAsGsonProperty(JsonObject parent) {
         if (value.isTextual()) {
-            parent.addProperty(name, value.asText());
+            parent.addProperty(key, value.asText());
         } else if (value.isBoolean()) {
-            parent.addProperty(name, value.asBoolean());
+            parent.addProperty(key, value.asBoolean());
         } else if (value.isNumber()) {
-            parent.addProperty(name, value.asDouble());
+            parent.addProperty(key, value.asDouble());
         } else {
             throw new IllegalStateException("Illegal metadata type - " + value.getNodeType() + " - expected string, boolean or number");
         }

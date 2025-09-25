@@ -1,6 +1,7 @@
 package io.github.fungrim;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,6 @@ import io.github.fungrim.conf.EmbeddingConfig;
 import io.github.fungrim.conf.EmbeddingConfig.Model;
 import io.github.fungrim.conf.MetadataConfig;
 import io.github.fungrim.conf.VectorStorageConfig;
-import io.github.fungrim.conf.VectorStorageConfig.Storage;
 import io.github.fungrim.embedding.EmbeddingModelService;
 import io.github.fungrim.parser.DocumentParser;
 import io.github.fungrim.storage.StorageFacade;
@@ -79,7 +79,7 @@ public class IngestResource {
         Metadata parseMetadata = new Metadata();
         String dataId = req.data().id().orElse("n/a");
 
-        log.infof("Upsert started for document ID %s for storage %s and embedding %s/%s", dataId, storage.provider(), embedding.provider(), embedding.name());
+        log.infof("Upsert started for document ID %s for storage %s and embedding %s/%s with metadata %s", dataId, storage.provider(), embedding.provider(), embedding.name(), req.data().metadata().orElse(Collections.emptyList()));
 
         // parse
         Document d = parser.parse(req, parseMetadata);
@@ -95,9 +95,11 @@ public class IngestResource {
         List<Embedding> embeddings = embed(embedding, chunks);
 
         // upsert
-        StorageFacade database = getStorageFacade(storage.provider());
+        StorageFacade database = getStorageFacade(storage.provider().orElseThrow());
+        Optional<List<MetadataField>> finalMeta = transformMetadata(req, parseMetadata);
+        log.debugf("Final metadata: %s", finalMeta.orElse(Collections.emptyList()));
         embeddings.forEach(e -> {
-            database.upsert(req.toUpsert(e, storage.namespace(), transformMetadata(parseMetadata)));
+            database.upsert(req.toUpsert(e, storage.collection(), storage.namespace(), finalMeta));
         });
 
         log.debugf("Document ID %s stored as %s embeddings", dataId, embeddings.size());
@@ -105,19 +107,24 @@ public class IngestResource {
         return Response.status(201).build();
     }
 
-    private Optional<List<MetadataField>> transformMetadata(Metadata parseMetadata) {
+    private Optional<List<MetadataField>> transformMetadata(UpsertRequest req, Metadata parseMetadata) {
+        List<MetadataField> fields = new ArrayList<>();
+        fields.addAll(req.data().metadata().orElse(Collections.emptyList()));
         if (metadataConfig.fileName().enabled() || metadataConfig.contentType().enabled()) {
-            List<MetadataField> fields = new ArrayList<>(2);
-            if (metadataConfig.fileName().enabled() && parseMetadata.get(TikaCoreProperties.RESOURCE_NAME_KEY) != null) {
+            // add file name if enabled and not already present
+            if (metadataConfig.fileName().enabled() 
+                && parseMetadata.get(TikaCoreProperties.RESOURCE_NAME_KEY) != null
+                && fields.stream().noneMatch(f -> f.key().equals(metadataConfig.fileName().name()))) {
                 fields.add(new MetadataField(metadataConfig.fileName().name(), toJson(parseMetadata.get(TikaCoreProperties.RESOURCE_NAME_KEY))));
             }
-            if (metadataConfig.contentType().enabled() && parseMetadata.get(Metadata.CONTENT_TYPE) != null) {
+            // add content type if enabled and not already present
+            if (metadataConfig.contentType().enabled() 
+                && parseMetadata.get(Metadata.CONTENT_TYPE) != null
+                && fields.stream().noneMatch(f -> f.key().equals(metadataConfig.contentType().name()))) {
                 fields.add(new MetadataField(metadataConfig.contentType().name(), toJson(parseMetadata.get(Metadata.CONTENT_TYPE))));
             }
-            return Optional.of(fields);
-        } else {
-            return Optional.empty();
         }
+        return Optional.of(fields);
     }
 
     private ValueNode toJson(String s) {
@@ -139,8 +146,9 @@ public class IngestResource {
         if (req.storage().isPresent()) {
             return req.storage().get();
         } else if (storageConfig.defaultStorage().isPresent()) {
-            Storage storage = storageConfig.defaultStorage().get();
-            return new VectorStorageSpec(storage.provider(), storage.namespace());
+            VectorStorageSpec storage = storageConfig.defaultStorage().get().toVectorStorageSpec();
+            Optional<VectorStorageSpec> reqStor = req.storage();
+            return storage.mergeOptional(reqStor);
         } else {
             throw new IllegalStateException("No default storage configured");
         }

@@ -2,6 +2,7 @@ package io.github.fungrim.conf;
 
 import java.util.Optional;
 
+import io.github.fungrim.api.VectorStorageSpec;
 import io.smallrye.config.ConfigMapping;
 import jakarta.validation.constraints.NotBlank;
 
@@ -17,5 +18,11 @@ public interface VectorStorageConfig {
 
         Optional<String> namespace();
 
+        public default VectorStorageSpec toVectorStorageSpec() {
+            return new VectorStorageSpec(
+                Optional.of(provider()),
+                Optional.empty(),
+                namespace());
+        }
     }
 }

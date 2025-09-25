@@ -1,6 +1,8 @@
 quarkus:
   swagger-ui:
     always-include: true
+  banner:
+    enabled: false
   config:
     log:
       values: true

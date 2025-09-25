@@ -31,7 +31,7 @@ public class Pinecone implements StorageFacade, EmbeddingFacade {
     }
 
     public void upsert(Upsert req) {
-        index.upsert(req.id(), req.values(), null, null, toStruct(req.metadata()), req.namespace());
+        index.upsert(req.id(), req.values(), null, null, toStruct(req.metadata()), req.namespace().orElse(null));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class Pinecone implements StorageFacade, EmbeddingFacade {
     private Struct toStruct(Stream<MetadataField> metadata) {
         Builder b = Struct.newBuilder();
         metadata.forEach(f -> {
-            b.putFields(f.name(), f.toProtobufValue());
+            b.putFields(f.key(), f.toProtobufValue());
         });
         return b.build();
     }

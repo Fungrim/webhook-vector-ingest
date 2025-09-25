@@ -41,24 +41,25 @@ docker run -it \
     ghcr.io/fungrim/webhook-vector-ingest:latest
 ```
 
+After that, post a request to `/api/v1/upsert`. See example JSON objects further down the page. 
+
 ## Swagger UI
 By default, a Swagger UI is provided at `/q/swagger-ui` and can be used for simple testing. 
 
 ## Configuration
 
 ### Environment variables vs YAML
-This project uses Quarkus as a framework, and as such, anything that is configurable via a YAML file is also available as environment variables. For example, 
-this value from a YAML file...
+This project uses Quarkus as a framework, and as such, anything that is configurable via a YAML file is also available as environment variables. For example, this value from a YAML file...
 
 ```yaml
 milvus:
-  uri: https://mylittleuri.com
+  host: localhost
 ```
 
 .... can also be set using this environment variable: 
 
 ```
-MILVUS_URI=https://mylittleuri.com
+MILVUS_HOST=localhost
 ```
 
 ### Example configuration file
@@ -87,7 +88,8 @@ embedding:
     name: "mxbai-embed-large:latest"
 
 milvus:
-  uri: "..."
+  host: "..."
+  port: 19530
   token: "..."
   database: "..."
   collection: "..."
@@ -117,6 +119,7 @@ metadata:
     enabled: true
   file-name:
     enabled: true
+    name: file_name
   html:
     include-headers:
       - "title"
@@ -131,14 +134,16 @@ For providers, when something is "mandatory" it means that it is mandatory only 
 are planning on using Milvus, then all Milvus configuration options are mandatory. 
 
 #### Milvus
+The Milvus connection is gRPC, and the default port is 19530. If you don't configure a `collection` this must be provided in 
+each request instead. 
 
 | Key | Type | Mandatory | Default value | Comment
 | --- | --- | --- | --- | --- |
-| milvus.uri | string | yes | n/a | The URI of your Milvus installation |
+| milvus.host | string | no | localhost | The URI of your Milvus installation |
+| milvus.port | int | no | 19530 | The port of your Milvus installation |
 | milvus.token | string | yes | n/a | Milvus access token |
 | milvus.database | string | yes | n/a | The Milvus database to use |
-| milvus.collection | string | yes | n/a | The Milvus collection to use |
-| milvus.secure | boolean | no | false | If this is an HTTPS connection |
+| milvus.collection | string | no | n/a | The Milvus collection to use, if not specified the request collection is used |
 
 #### Pinecone
 
@@ -240,7 +245,7 @@ storage and embedding model overrides.
 | data.id | string | false | new(nanoid) | Document ID, if known |
 | data.contentType | string | false | n/a | The content type, if known |
 | data.fileName | string | false | n/a | The file name, if known |
-| data.metadata | map(string, string) | false | n/a | Additional metadata as a dictionary |
+| data.metadata | list({key: string, value: string}) | false | n/a | Additional metadata as a list of key/value objects |
 | data.encoding | string | false | "UTF8" | The `content` encoding, values: "BASE64" or "UTF8" |
 | data.content | string | true | n/a | The content, use `encoding: BASE64` for binary files |
 | data.fetchContent | boolean | false | false | If `true` the `content` is used as an URL to read from |
@@ -250,6 +255,7 @@ storage and embedding model overrides.
 | storage | object | false | n/a | Optional storage provider |
 | storage.provider | string | true | n/a | Values: "milvus" or "pinecone" |
 | storage.namespace | string | false | n/a | Milvus partition or Pionecone namespace, optional |
+| storage.collection | string | false | n/a | Milvus collection, optional if configured otherwise mandatory |
 | chunking | object | false | n/a | Optional chunking config |
 | chunking.strategy | string | true | n/a | See config above for allowed values |
 | chunking.limits | object | true | n/a | Chunking limits |
@@ -303,9 +309,9 @@ In order to pull from an URL the `content` field should be a valid URL and `fetc
     "fileName": "my-little-document.docx",
     "content": "...",
     "encoding": "BASE64",
-    "metadata": {
-      "created": "2024-12-01"
-    }
+    "metadata": [ 
+      { "key": "created", "value": "2024-12-01" }
+    ]
   }
 }
 ```

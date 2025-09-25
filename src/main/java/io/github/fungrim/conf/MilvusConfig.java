@@ -12,7 +12,9 @@ public interface MilvusConfig {
 
     Optional<String> token();
 
-    Optional<String> uri();
+    Optional<String> host();
+
+    Optional<Integer> port();
 
     @WithDefault("true")
     boolean enabled();
@@ -35,8 +37,6 @@ public interface MilvusConfig {
 
     public default boolean isLegal() {
         return !Strings.isNullOrEmpty(token().orElse(null))
-                && !Strings.isNullOrEmpty(uri().orElse(null))
-                && !Strings.isNullOrEmpty(database().orElse(null))
-                && !Strings.isNullOrEmpty(collection().orElse(null));
+                && !Strings.isNullOrEmpty(database().orElse(null));
     }
 }

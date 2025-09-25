@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.google.common.collect.Streams;
 
 import dev.langchain4j.data.embedding.Embedding;
 import io.github.fungrim.storage.StorageFacade;
@@ -30,13 +29,13 @@ public record UpsertRequest(
 
     }
 
-    public StorageFacade.Upsert toUpsert(Embedding e, Optional<String> namespace,
-            Optional<List<MetadataField>> extraMeta) {
+    public StorageFacade.Upsert toUpsert(Embedding e, Optional<String> collection, Optional<String> namespace,
+            Optional<List<MetadataField>> metadata) {
         return new StorageFacade.Upsert(
-                data.id.orElse(NanoIdUtils.randomNanoId()),
-                namespace.orElse(null),
-                Streams.concat(extraMeta.orElse(Collections.emptyList()).stream(),
-                        data.metadata.orElse(Collections.emptyList()).stream()),
+                data.id().orElse(NanoIdUtils.randomNanoId()),
+                collection,
+                namespace,
+                metadata.orElse(Collections.emptyList()).stream(),
                 e.vectorAsList());
     }
 }
