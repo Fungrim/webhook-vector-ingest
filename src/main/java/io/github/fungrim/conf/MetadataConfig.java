@@ -15,6 +15,12 @@ public interface MetadataConfig {
 
     Html html();
 
+    @WithDefault("true")
+    boolean includeTextSegmentMetadata();
+
+    @WithDefault("text")
+    Optional<String> textSegmentMetadataKey();
+
     public interface ContentType {
 
         @WithDefault("content-type")

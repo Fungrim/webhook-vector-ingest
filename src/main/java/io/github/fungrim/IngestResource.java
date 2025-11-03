@@ -96,18 +96,31 @@ public class IngestResource {
 
         // upsert
         StorageFacade database = getStorageFacade(storage.provider().orElseThrow());
-        Optional<List<MetadataField>> finalMeta = transformMetadata(req, parseMetadata);
-        log.debugf("Final metadata: %s", finalMeta.orElse(Collections.emptyList()));
-        embeddings.forEach(e -> {
-            database.upsert(req.toUpsert(e, storage.collection(), storage.namespace(), finalMeta));
-        });
+        List<MetadataField> finalMeta = transformMetadata(req, parseMetadata);
+        log.debugf("Final metadata: %s", finalMeta);
+
+        for(int i = 0; i < embeddings.size(); i++) {
+            Embedding e = embeddings.get(i);
+            TextSegment chunk = chunks.get(i);
+            List<MetadataField> segmentMeta = transformSegmentMetadata(finalMeta, chunk);
+            database.upsert(req.toUpsert(e, storage.collection(), storage.namespace(), Optional.of(segmentMeta)));
+        }
 
         log.debugf("Document ID %s stored as %s embeddings", dataId, embeddings.size());
 
         return Response.status(201).build();
     }
 
-    private Optional<List<MetadataField>> transformMetadata(UpsertRequest req, Metadata parseMetadata) {
+    private List<MetadataField> transformSegmentMetadata(List<MetadataField> finalMeta, TextSegment chunk) {
+        List<MetadataField> fields = new ArrayList<>();
+        fields.addAll(finalMeta);
+        if (metadataConfig.includeTextSegmentMetadata()) {
+            fields.add(new MetadataField(metadataConfig.textSegmentMetadataKey().orElse("text"), toJson(chunk.text())));
+        }
+        return fields;
+    }
+
+    private List<MetadataField> transformMetadata(UpsertRequest req, Metadata parseMetadata) {
         List<MetadataField> fields = new ArrayList<>();
         fields.addAll(req.data().metadata().orElse(Collections.emptyList()));
         if (metadataConfig.fileName().enabled() || metadataConfig.contentType().enabled()) {
@@ -124,7 +137,7 @@ public class IngestResource {
                 fields.add(new MetadataField(metadataConfig.contentType().name(), toJson(parseMetadata.get(Metadata.CONTENT_TYPE))));
             }
         }
-        return Optional.of(fields);
+        return fields;
     }
 
     private ValueNode toJson(String s) {
