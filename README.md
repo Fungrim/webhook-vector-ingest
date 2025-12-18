@@ -107,7 +107,8 @@ pinecone:
   index: "..."
   api-key: "..."
   uri: "..."
-  
+  embedding-batch-size: 42
+
 chunking:
   strategy: "PARAGRAPH"
   limits:

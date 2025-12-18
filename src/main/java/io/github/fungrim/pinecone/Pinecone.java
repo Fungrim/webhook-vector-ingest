@@ -1,5 +1,6 @@
 package io.github.fungrim.pinecone;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,8 +24,10 @@ public class Pinecone implements StorageFacade, EmbeddingFacade {
     private final io.pinecone.clients.Pinecone client;
     private final Index index;
     private Inference infererence;
+    private final int batchSize;
 
     public Pinecone(PineconeConfig conf) {
+        batchSize = conf.embeddingBatchSize();
         client = new io.pinecone.clients.Pinecone.Builder(conf.apiKey().get()).build();
         index = client.getIndexConnection(conf.index().get());
         infererence = client.getInferenceClient();
@@ -37,12 +40,25 @@ public class Pinecone implements StorageFacade, EmbeddingFacade {
     @Override
     public List<Embedding> embed(String model, List<TextSegment> chunks) {
         List<String> texts = chunks.stream().map(c -> c.text()).toList();
-        try {
-            return infererence.embed(model, Collections.singletonMap("input_type", "passage"), texts).getData().stream()
-                    .map(e -> new Embedding(toFloats(e))).toList();
-        } catch (ApiException e) {
-            throw new IllegalStateException(e);
+        List<Embedding> allEmbeddings = new ArrayList<>();
+        
+        for (int i = 0; i < texts.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, texts.size());
+            List<String> batch = texts.subList(i, end);
+            
+            try {
+                List<Embedding> batchEmbeddings = infererence.embed(model, 
+                        Collections.singletonMap("input_type", "passage"), batch)
+                        .getData().stream()
+                        .map(e -> new Embedding(toFloats(e)))
+                        .toList();
+                allEmbeddings.addAll(batchEmbeddings);
+            } catch (ApiException e) {
+                throw new IllegalStateException(e);
+            }
         }
+        
+        return allEmbeddings;
     }
 
     @SuppressWarnings("null")

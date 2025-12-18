@@ -19,6 +19,9 @@ public interface PineconeConfig {
     @WithDefault("true")
     boolean enabled();
 
+    @WithDefault("96")
+    int embeddingBatchSize();
+
     public default boolean isLegal() {
         return !Strings.isNullOrEmpty(apiKey().orElse(null))
                 && !Strings.isNullOrEmpty(index().orElse(null))
