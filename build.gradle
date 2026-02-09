@@ -23,6 +23,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkiverse.tika:quarkus-tika:2.0.4'
     implementation 'io.quarkiverse.resteasy-problem:quarkus-resteasy-problem:3.21.0'
+    implementation 'io.github.resilience4j:resilience4j-retry:2.3.0'
 
     // INTERGATIONS
     implementation 'io.milvus:milvus-sdk-java:2.5.0'

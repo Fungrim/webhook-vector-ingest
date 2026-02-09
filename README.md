@@ -45,6 +45,9 @@ After that, post a request to `/api/v1/upsert`. See example JSON objects further
 
 ## Changelog
 
+### 1.1.4
+- Added rate limit retry for Pinecone embedding on 429 errors
+
 ### 1.1.3
 - Added health endpoints: https://quarkus.io/extensions/io.quarkus/quarkus-smallrye-health/
 - Added HTTP problem: https://github.com/quarkiverse/quarkus-resteasy-problem
@@ -114,6 +117,11 @@ pinecone:
   api-key: "..."
   uri: "..."
   embedding-batch-size: 42
+  rate-limit-retry:
+    enabled: true
+    base-interval: PT15S
+    max-attempts: 5
+    exponantional-backoff: true
 
 chunking:
   strategy: "PARAGRAPH"
@@ -159,6 +167,19 @@ each request instead.
 | pinecone.index | string | yes | n/a | Index name for storage |
 | pinecone.api-key | string | yes | n/a | Pinecode access token |
 | pinecone.uri | string | yes | n/a | Database host URI |
+| pinecone.embedding-batch-size | int | no | 96 | Batch size for embedding |
+| pinecone.rate-limit-retry.enabled | boolean | no | false | Enable rate limit retry |
+| pinecone.rate-limit-retry.base-interval | Duration | no | PT15S | Base interval for rate limit retry |
+| pinecone.rate-limit-retry.max-attempts | int | no | 5 | Max attempts for rate limit retry |
+| pinecone.rate-limit-retry.exponantional-backoff | boolean | no | true | Use exponantional backoff for rate limit retry |
+
+#### Retries
+Embedding with Pinecone supports retries on 429 errors (rate limits). If it is enabled (see config above) it will retry each 
+batch of embeddings. If it fails after the max attempts, it will throw an HTTP problem with status 419 and this type:
+
+```
+urn:problem:io.github.fungrim:webhook-vector-ingest:429.1
+```
 
 #### Ollama
 
