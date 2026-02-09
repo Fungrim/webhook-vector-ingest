@@ -43,6 +43,12 @@ docker run -it \
 
 After that, post a request to `/api/v1/upsert`. See example JSON objects further down the page. 
 
+## Changelog
+
+### 1.1.3
+- Added healths: https://quarkus.io/extensions/io.quarkus/quarkus-smallrye-health/
+- Added HTTP problem: https://github.com/quarkiverse/quarkus-resteasy-problem
+
 ## Swagger UI
 By default, a Swagger UI is provided at `/q/swagger-ui` and can be used for simple testing. 
 

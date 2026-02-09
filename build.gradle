@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'io.quarkus:quarkus-smallrye-health'
     // PLATFORM
     implementation 'io.quarkus:quarkus-container-image-jib'
     implementation 'io.quarkiverse.langchain4j:quarkus-langchain4j-core:0.22.0'
