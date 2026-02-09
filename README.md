@@ -46,7 +46,7 @@ After that, post a request to `/api/v1/upsert`. See example JSON objects further
 ## Changelog
 
 ### 1.1.3
-- Added healths: https://quarkus.io/extensions/io.quarkus/quarkus-smallrye-health/
+- Added health endpoints: https://quarkus.io/extensions/io.quarkus/quarkus-smallrye-health/
 - Added HTTP problem: https://github.com/quarkiverse/quarkus-resteasy-problem
 
 ## Swagger UI
