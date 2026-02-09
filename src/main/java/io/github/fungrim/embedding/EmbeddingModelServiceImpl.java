@@ -36,22 +36,19 @@ public class EmbeddingModelServiceImpl implements EmbeddingModelService {
     @Override
     public EmbeddingFacade getEmbedder(EmbeddingModelSpec model) {
         if ("ollama".equals(model.provider()) && ollamaConf.isLegal()) {
-            return (m, l) -> {
-                return OllamaEmbeddingModel.builder()
+            OllamaEmbeddingModel ollama = OllamaEmbeddingModel.builder()
                         .baseUrl(ollamaConf.uri().get())
                         .modelName(model.name())
-                        .build().embedAll(l).content();
-            };
+                        .build();
+            return new ProblemEmbeddingFacadeWrapper("Ollama", (m, l) -> ollama.embedAll(l).content());
         }
         if ("openai".equals(model.provider()) && openAiConf.isLegal()) {
-            return (m, l) -> {
-                OpenAiEmbeddingModelBuilder oai = OpenAiEmbeddingModel.builder()
-                        .apiKey(openAiConf.apiKey().get());
-                if (openAiConf.uri().isPresent()) {
-                    oai = oai.baseUrl(openAiConf.uri().get());
-                }
-                return oai.build().embedAll(l).content();
-            };
+            OpenAiEmbeddingModelBuilder oai = OpenAiEmbeddingModel.builder().apiKey(openAiConf.apiKey().get());
+            if (openAiConf.uri().isPresent()) {
+                oai = oai.baseUrl(openAiConf.uri().get());
+            }
+            final OpenAiEmbeddingModel oaiModel = oai.build();
+            return new ProblemEmbeddingFacadeWrapper("OpenAi", (m, l) -> oaiModel.embedAll(l).content());
         }
         if ("pinecone".equals(model.provider()) && pineconeConfig.isLegal()) {
             return (m, l) -> {
@@ -59,14 +56,12 @@ public class EmbeddingModelServiceImpl implements EmbeddingModelService {
             };
         }
         if ("mistral".equals(model.provider()) && mistralConf.isLegal()) {
-            return (m, l) -> {
-                MistralAiEmbeddingModelBuilder builder = MistralAiEmbeddingModel.builder()
-                        .apiKey(mistralConf.apiKey().get());
-                if (mistralConf.uri().isPresent()) {
-                    builder = builder.baseUrl(mistralConf.uri().get());
-                }
-                return builder.build().embedAll(l).content();
-            };
+            MistralAiEmbeddingModelBuilder builder = MistralAiEmbeddingModel.builder().apiKey(mistralConf.apiKey().get());
+            if (mistralConf.uri().isPresent()) {
+                builder = builder.baseUrl(mistralConf.uri().get());
+            }
+            final MistralAiEmbeddingModel mistModel = builder.build();
+            return new ProblemEmbeddingFacadeWrapper("Mistral", (m, l) -> mistModel.embedAll(l).content());
         }
         throw new IllegalStateException(
                 "Embedding model " + model.provider() + "/" + model.name() + " not found, or configuration is invalid");

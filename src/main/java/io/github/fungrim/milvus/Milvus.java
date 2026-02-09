@@ -7,9 +7,12 @@ import com.google.gson.JsonObject;
 
 import io.github.fungrim.conf.MilvusConfig;
 import io.github.fungrim.storage.StorageFacade;
+import io.github.fungrim.util.ProblemFactory;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.param.ConnectParam;
 import io.milvus.param.dml.UpsertParam;
+import io.quarkus.logging.Log;
+import jakarta.ws.rs.core.Response;
 
 public class Milvus implements StorageFacade {
 
@@ -37,7 +40,12 @@ public class Milvus implements StorageFacade {
         }
         JsonObject o = toRow(req);
         UpsertParam.Builder param = toRequestBuilder(req, o);
-        client.upsert(param.build());
+        try {
+            client.upsert(param.build());
+        } catch (Exception e) {
+            Log.error("Failed to upsert document, will pass on as an internal error", e);
+            throw ProblemFactory.problem(Response.Status.INTERNAL_SERVER_ERROR, "Milvus exception", 0, e.getMessage());
+        }
     }
 
     private UpsertParam.Builder toRequestBuilder(Upsert req, JsonObject o) {

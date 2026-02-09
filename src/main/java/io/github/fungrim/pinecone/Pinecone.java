@@ -16,6 +16,7 @@ import io.github.fungrim.api.MetadataField;
 import io.github.fungrim.conf.PineconeConfig;
 import io.github.fungrim.embedding.EmbeddingFacade;
 import io.github.fungrim.storage.StorageFacade;
+import io.github.fungrim.util.OpenApiException;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Inference;
 
@@ -54,7 +55,7 @@ public class Pinecone implements StorageFacade, EmbeddingFacade {
                         .toList();
                 allEmbeddings.addAll(batchEmbeddings);
             } catch (ApiException e) {
-                throw new IllegalStateException(e);
+                throw OpenApiException.fromException(e).toHttpProblem("Pinecone");
             }
         }
         
